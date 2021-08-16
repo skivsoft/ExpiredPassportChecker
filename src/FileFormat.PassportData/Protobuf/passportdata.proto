@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package FileFormat.PassportData;
+
+message PassportDataMessage
+{
+    string csv_header = 1;
+    repeated NumbersMap numbers_only_map = 2;
+    repeated string other_lines = 3;
+}
+
+message NumbersMap
+{
+    int32 seven_digits_key = 1;
+    bytes three_digits_bits_value = 2;
+}
