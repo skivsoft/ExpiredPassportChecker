@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace FileFormat.PassportData
@@ -10,6 +11,7 @@ namespace FileFormat.PassportData
         public const int PART2_NUM_BYTES = (PART2_NUM_VALUES >> 3) + (PART2_NUM_VALUES % 8 == 0 ? 0 : 1);
         private const int PART1_LENGTH = 7;
         private const int PART2_LENGTH = 3;
+        private const int COMMA_INDEX = 4;
 
         private readonly IBitMatrix _numbers;
         private readonly ISet<string> _strings;
@@ -73,10 +75,17 @@ namespace FileFormat.PassportData
 
         private bool IsOnlyNumbers(string value)
         {
-            if (value.Length == 11 && value[4] == ',')
+            if (value.Length == PART1_LENGTH + PART2_LENGTH + 1 && value[COMMA_INDEX] == ',')
             {
-                var numbers = value.Substring(0, 4) + value.Substring(5, 6);
-                return numbers.All(char.IsDigit);
+                for (int index = 0; index < value.Length; index++)
+                {
+                    if (index != COMMA_INDEX && !char.IsDigit(value[index]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
             }
 
             return false;
@@ -84,10 +93,30 @@ namespace FileFormat.PassportData
 
         private (int, int) SplitNumbersValue(string value)
         {
-            var onlyNumbers = value.Substring(0, 4) + value.Substring(5, 6);
-            var part1 = onlyNumbers.Substring(0, PART1_LENGTH);
-            var part2 = onlyNumbers.Substring(PART1_LENGTH, PART2_LENGTH);
-            return (int.Parse(part1), int.Parse(part2));
+            var part1 = 0;
+            var part2 = 0;
+            var noCommaIndex = 0;
+            for (var index = 0; index < value.Length; index++)
+            {
+                if (index == COMMA_INDEX)
+                {
+                    continue;
+                }
+
+                var digit = value[index] - '0';
+                if (noCommaIndex < PART1_LENGTH)
+                {
+                    part1 = (part1 * 10) + digit;
+                }
+                else
+                {
+                    part2 = (part2 * 10) + digit;
+                }
+
+                noCommaIndex++;
+            }
+
+            return (part1, part2);
         }
     }
 }
