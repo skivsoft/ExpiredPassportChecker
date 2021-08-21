@@ -1,45 +1,68 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using ExpiredPassportChecker.Batches.UpdateExpiredPassports.Context;
+using CronExpressionDescriptor;
+using ExpiredPassportChecker.Application.Commands.UpdateExpiredPassports;
 using ExpiredPassportChecker.Helpers;
 using ExpiredPassportChecker.Settings;
 using FileFormat.PassportData;
+using Hangfire;
 using MediatR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog;
+using Options = Microsoft.Extensions.Options.Options;
 
 namespace ExpiredPassportChecker.HostedServices
 {
     public class UpdateExpiredPassportsHostedService : IHostedService
     {
         private readonly ILogger<UpdateExpiredPassportsHostedService> _logger;
-        private readonly IRequestHandler<ExpiredPassportsContext> _steps;
-        private readonly MainSettings _settings;
+        private readonly IMediator _mediator;
         private readonly InMemoryContainer<PassportDataStorage> _container;
+        private readonly MainSettings _settings;
 
         public UpdateExpiredPassportsHostedService(
             ILogger<UpdateExpiredPassportsHostedService> logger,
-            IOptions<MainSettings> options,
+            IMediator mediator,
             InMemoryContainer<PassportDataStorage> container,
-            IEnumerable<IRequestHandler<ExpiredPassportsContext>> processors)
+            IOptions<MainSettings> settings)
         {
             _logger = logger;
-            _settings = options.Value;
+            _mediator = mediator;
             _container = container;
-            _steps = new StepsProcessor<ExpiredPassportsContext>(logger, processors);
+            _settings = settings.Value;
         }
-        
+
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            var context = new ExpiredPassportsContext()
+            var passportDataFileName = Path.ChangeExtension(_settings.SourceFileName, ".pdata");
+            if (passportDataFileName != null && File.Exists(passportDataFileName))
             {
-                Logger = _logger,
-                Settings = _settings,
-            };
-            await _steps.Handle(context, cancellationToken);
-            _container.Value = context.Storage;
+                _logger.LogInformation($"Loading passport data from {passportDataFileName}");
+                using (var stream = new FileStream(passportDataFileName, FileMode.Open))
+                {
+                    var reader = new PassportDataReader(stream);
+                    _container.Value = reader.ReadFrom();
+                    stream.Close();
+                }
+            }
+            else
+            {
+                await _mediator.Send(new UpdateExpiredPassportsCommand(), cancellationToken);
+            }
+
+            var cronExpression = ExpressionDescriptor.GetDescription(_settings.CronSchedule, new CronExpressionDescriptor.Options()
+            {
+                Use24HourTimeFormat = true,
+            });
+            Log.Information($"Cron schedule: {cronExpression}");
+
+            RecurringJob.AddOrUpdate(
+                () => _mediator.Send(new UpdateExpiredPassportsCommand(), default),
+                _settings.CronSchedule);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

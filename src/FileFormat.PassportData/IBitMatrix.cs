@@ -4,7 +4,7 @@ namespace FileFormat.PassportData
 {
     public interface IBitMatrix
     {
-        IReadOnlyDictionary<int, byte[]> Dictionary { get; } 
+        IReadOnlyDictionary<int, byte[]> Dictionary { get; }
 
         bool this[int row, int column] { get; set; }
     }

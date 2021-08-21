@@ -18,7 +18,7 @@ namespace ExpiredPassportChecker.Batches.UpdateExpiredPassports.Processors
             {
                 return Unit.Value;
             }
-            
+
             var sourceUrl = new Uri(new Uri(request.Settings.SourceBaseUrl, UriKind.Absolute), request.Settings.SourceFileName);
             request.Logger.LogInformation("Downloading file " + sourceUrl);
 
@@ -37,12 +37,12 @@ namespace ExpiredPassportChecker.Batches.UpdateExpiredPassports.Processors
 
                     updateFlag = true;
                     Console.SetCursorPosition(0, savePosition.Top);
-                    
+
                     var left = args.ProgressPercentage / 2;
                     var right = 50 - left;
                     var forecastMilliseconds = (timer.ElapsedMilliseconds * args.TotalBytesToReceive) / args.BytesReceived;
                     var forecastTime = TimeSpan.FromMilliseconds(forecastMilliseconds);
-                    var leftTime = forecastTime - timer.Elapsed; 
+                    var leftTime = forecastTime - timer.Elapsed;
                     Console.Write(
                         "[{0}{1}] {2}",
                         new string('█', left),
@@ -60,8 +60,7 @@ namespace ExpiredPassportChecker.Batches.UpdateExpiredPassports.Processors
 
             var fileSize = new FileInfo(request.Bzip2FileName).Length;
             decimal speed = (decimal)fileSize / (decimal)timer.ElapsedMilliseconds / 1000;
-            request.Logger.LogInformation($"Downloaded {(decimal)fileSize / 1000 / 1000:N2} MB ({fileSize} bytes)");
-            request.Logger.LogInformation($"Average download speed: {speed:N2} MB/s");
+            request.Logger.LogInformation($"Downloaded {(decimal)fileSize / 1000 / 1000:N2} MB ({fileSize} bytes) {speed:N2} MB/s");
 
             return Unit.Value;
         }

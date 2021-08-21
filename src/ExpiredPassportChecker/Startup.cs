@@ -1,9 +1,13 @@
+using System;
 using ExpiredPassportChecker.Batches.UpdateExpiredPassports.Context;
 using ExpiredPassportChecker.Batches.UpdateExpiredPassports.Processors;
+using ExpiredPassportChecker.Extensions;
 using ExpiredPassportChecker.Helpers;
 using ExpiredPassportChecker.HostedServices;
 using ExpiredPassportChecker.Settings;
 using FileFormat.PassportData;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -54,15 +58,17 @@ namespace ExpiredPassportChecker
             {
                 services.AddTransient<IRequestHandler<ExpiredPassportsContext>, PackCsvToPassportData>();
             }
-            
+
             if (settings.EnabledSteps.RepackBzip2ToPassportData)
             {
                 services.AddTransient<IRequestHandler<ExpiredPassportsContext>, RepackBzip2ToPassportData>();
             }
 
             services.AddTransient<IRequestHandler<ExpiredPassportsContext>, SavePassportData>();
-            
+
             services.AddHostedService<UpdateExpiredPassportsHostedService>();
+
+            services.AddHangfireServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

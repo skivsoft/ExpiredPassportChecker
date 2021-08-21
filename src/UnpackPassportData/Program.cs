@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using FileFormat.PassportData;
 
 namespace UnpackPassportData
 {
-    class Program
+    static class Program
     {
         static int Main(string[] args)
         {
@@ -68,13 +69,22 @@ namespace UnpackPassportData
             foreach (var (row, bytes) in storage.Numbers.Dictionary)
             {
                 var part1 = row.ToString("D7");
-                for (var column = 0; column < PassportDataStorage.PART2_NUM_VALUES; column++)
+                for (var index = 0; index < bytes.Length; index++)
                 {
-                    if (storage.Numbers[row, column])
+                    if (bytes[index] == 0)
                     {
-                        var part2 = column.ToString("D3");
-                        var line = part1.Substring(0, 4) + "," + part1.Substring(4, 3) + part2;
-                        writer.WriteLine(line);
+                        continue;
+                    }
+
+                    for (var col = 0; col < 8; col++)
+                    {
+                        var column = (index << 3) + col;
+                        if (storage.Numbers[row, column])
+                        {
+                            var part2 = column.ToString("D3");
+                            var line = part1.Substring(0, 4) + "," + part1.Substring(4, 3) + part2;
+                            writer.WriteLine(line);
+                        }
                     }
                 }
             }

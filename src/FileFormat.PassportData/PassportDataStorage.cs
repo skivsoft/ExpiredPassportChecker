@@ -6,9 +6,9 @@ namespace FileFormat.PassportData
 {
     public class PassportDataStorage
     {
+        public const int PART2_NUM_VALUES = 1000;
         private const int PART1_LENGTH = 7;
         private const int PART2_LENGTH = 3;
-        public const int PART2_NUM_VALUES = 1000;
 
         private readonly IBitMatrix _numbers;
         private readonly ISet<string> _strings;
@@ -24,13 +24,13 @@ namespace FileFormat.PassportData
             _numbers = numbers;
             _strings = new HashSet<string>(strings);
         }
-        
+
         public string Header { get; set; }
 
         public ISet<string> Strings => _strings;
 
         public IBitMatrix Numbers => _numbers;
-        
+
         public void Add(string value)
         {
             if (string.IsNullOrEmpty(value))

@@ -7,7 +7,7 @@
         {
             Value = new T();
         }
-        
+
         public T Value { get; set; }
     }
 }

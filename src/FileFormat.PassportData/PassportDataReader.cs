@@ -7,7 +7,7 @@ namespace FileFormat.PassportData
     public class PassportDataReader
     {
         private readonly Stream _stream;
-        
+
         public PassportDataReader(Stream stream)
         {
             _stream = stream;
@@ -21,7 +21,7 @@ namespace FileFormat.PassportData
             var numbers = new BitMatrix(PassportDataStorage.PART2_NUM_VALUES, dictionary);
             var result = new PassportDataStorage(numbers, message.OtherLines)
             {
-                Header = message.CsvHeader
+                Header = message.CsvHeader,
             };
             return result;
         }

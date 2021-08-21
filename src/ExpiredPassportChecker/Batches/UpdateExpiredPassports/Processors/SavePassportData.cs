@@ -19,7 +19,7 @@ namespace ExpiredPassportChecker.Batches.UpdateExpiredPassports.Processors
             }
 
             var fileSize = new FileInfo(outputFileName).Length;
-            request.Logger.LogInformation($"Packed passport data saved into {outputFileName} ({(decimal)fileSize/1000/1000:N2} MB)");
+            request.Logger.LogInformation($"Packed passport data saved into {outputFileName} ({(decimal)fileSize / 1000 / 1000:N2} MB)");
         }
     }
 }

@@ -13,7 +13,7 @@ namespace ExpiredPassportChecker.Application.Queries.CheckPassport
         {
             _container = container;
         }
-        
+
         protected override CheckPassportResult Handle(CheckPassportQuery query)
         {
             var combined = $"{query.PassportSeries}{query.PassportNumber}";

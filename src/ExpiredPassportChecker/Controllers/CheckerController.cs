@@ -17,7 +17,7 @@ namespace ExpiredPassportChecker.Controllers
         {
             _mediator = mediator;
         }
-        
+
         [HttpGet("series/{series}/numbers/{number}")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(CheckPassportResult), StatusCodes.Status200OK)]

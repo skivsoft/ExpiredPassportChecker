@@ -6,7 +6,7 @@ using Serilog.Events;
 
 namespace ExpiredPassportChecker
 {
-    public class Program
+    public static class Program
     {
         public static int Main(string[] args)
         {

@@ -8,7 +8,7 @@ namespace ExpiredPassportChecker.Application.Queries.CheckPassport
         /// Серия паспорта РФ.
         /// </summary>
         public string PassportSeries { get; set; }
-        
+
         /// <summary>
         /// Номер паспорта РФ.
         /// </summary>

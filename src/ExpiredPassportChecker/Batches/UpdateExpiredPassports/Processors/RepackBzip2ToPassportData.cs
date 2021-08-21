@@ -1,13 +1,22 @@
 ﻿using System.IO;
 using ExpiredPassportChecker.Batches.UpdateExpiredPassports.Context;
+using ExpiredPassportChecker.Settings;
 using ICSharpCode.SharpZipLib.BZip2;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ExpiredPassportChecker.Batches.UpdateExpiredPassports.Processors
 {
     public class RepackBzip2ToPassportData : RequestHandler<ExpiredPassportsContext>
     {
+        private readonly MainSettings _settings;
+
+        public RepackBzip2ToPassportData(IOptions<MainSettings> settings)
+        {
+            _settings = settings.Value;
+        }
+
         protected override void Handle(ExpiredPassportsContext request)
         {
             if (request.Bzip2FileName == null || !File.Exists(request.Bzip2FileName))
@@ -16,9 +25,8 @@ namespace ExpiredPassportChecker.Batches.UpdateExpiredPassports.Processors
             }
 
             request.Logger.LogInformation($"Repacking {request.Bzip2FileName} to PassportData format");
-            
+
             var lines = 0;
-            byte[ ] dataBuffer = new byte[request.Settings.UnpackBufferSize];
             using (Stream inputFile = new FileStream(request.Bzip2FileName, FileMode.Open, FileAccess.Read))
             using (Stream bzipInStream = new BZip2InputStream(inputFile))
             {
@@ -39,6 +47,11 @@ namespace ExpiredPassportChecker.Batches.UpdateExpiredPassports.Processors
                         lines++;
                     }
                 }
+            }
+
+            if (_settings.EnabledSteps.DeleteBzip2AfterUnpack)
+            {
+                File.Delete(request.Bzip2FileName);
             }
 
             request.Logger.LogInformation($"Number of processed records: {lines - 1}");

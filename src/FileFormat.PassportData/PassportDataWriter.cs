@@ -7,7 +7,7 @@ namespace FileFormat.PassportData
     public class PassportDataWriter
     {
         private readonly Stream _stream;
-        
+
         public PassportDataWriter(Stream stream)
         {
             _stream = stream;
@@ -29,7 +29,7 @@ namespace FileFormat.PassportData
                 .ToList();
             message.NumbersOnlyMap.AddRange(numbers);
             message.OtherLines.AddRange(storage.Strings);
-                
+
             var content = message.ToByteArray();
             _stream.Write(content, 0, content.Length);
         }

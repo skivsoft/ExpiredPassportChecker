@@ -15,7 +15,7 @@ namespace ExpiredPassportChecker.Helpers
     {
         private readonly ILogger _logger;
         private readonly ICollection<IRequestHandler<TContext>> _processors;
-        
+
         public StepsProcessor(
             ILogger logger,
             IEnumerable<IRequestHandler<TContext>> processors)
@@ -23,7 +23,6 @@ namespace ExpiredPassportChecker.Helpers
             _logger = logger;
             _processors = processors.ToArray();
         }
-
 
         public async Task<Unit> Handle(TContext request, CancellationToken cancellationToken)
         {

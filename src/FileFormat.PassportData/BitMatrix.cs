@@ -23,8 +23,7 @@ namespace FileFormat.PassportData
             _sizeInBytes = (_width >> 3) + (_width % 8 == 0 ? 0 : 1);
             _dictionary = dictionary;
         }
-        
-        
+
         public IReadOnlyDictionary<int, byte[]> Dictionary => new ReadOnlyDictionary<int, byte[]>(_dictionary);
 
         public bool this[int row, int column]
@@ -32,7 +31,7 @@ namespace FileFormat.PassportData
             get => GetBit(row, column);
             set => SetBit(row, column, value);
         }
-        
+
         private void SetBit(int row, int column, bool value)
         {
             if (column < 0 || column > _width - 1)
@@ -45,7 +44,7 @@ namespace FileFormat.PassportData
                 data = new byte[_sizeInBytes];
                 _dictionary.Add(row, data);
             }
-            
+
             var index = column >> 3;
             var bit = column % 8;
             var mask = 1 << bit;
@@ -65,7 +64,7 @@ namespace FileFormat.PassportData
             {
                 throw new ArgumentOutOfRangeException(nameof(column));
             }
-            
+
             if (_dictionary.TryGetValue(row, out var data))
             {
                 var index = column >> 3;
