@@ -17,7 +17,7 @@ namespace FileFormat.PassportData
         {
             var message = new PassportDataMessage
             {
-                CsvHeader = storage.Header,
+                CsvHeader = storage.Header ?? string.Empty,
             };
 
             var numbers = storage.Numbers.Dictionary

@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Linq;
 using ExpiredPassportChecker.Batches.UpdateExpiredPassports.Context;
 using ExpiredPassportChecker.Batches.UpdateExpiredPassports.Processors;
 using ExpiredPassportChecker.Extensions;
@@ -14,6 +16,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.OpenApi.Models;
 
 namespace ExpiredPassportChecker
@@ -31,9 +34,18 @@ namespace ExpiredPassportChecker
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpiredPassportChecker", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpiredPassportChecker", Version = "v1" });
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var xmlComments = Directory.GetFiles(basePath, "*.xml").ToList();
+                xmlComments.ForEach(xmlCommentPath =>
+                {
+                    if (File.Exists(xmlCommentPath))
+                    {
+                        options.IncludeXmlComments(xmlCommentPath);
+                    }
+                });
             });
             services.AddOptions<MainSettings>();
             services.Configure<MainSettings>(Configuration.GetSection(nameof(MainSettings)));
@@ -77,9 +89,10 @@ namespace ExpiredPassportChecker
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ExpiredPassportChecker v1"));
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ExpiredPassportChecker v1"));
 
             app.UseHttpsRedirection();
 

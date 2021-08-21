@@ -18,6 +18,12 @@ namespace ExpiredPassportChecker.Controllers
             _mediator = mediator;
         }
 
+        /// <summary>
+        /// Проверка наличия паспорта в списке недействительных паспортов РФ.
+        /// </summary>
+        /// <param name="series">Серия паспорта.</param>
+        /// <param name="number">Номер паспорта.</param>
+        /// <returns></returns>
         [HttpGet("series/{series}/numbers/{number}")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(CheckPassportResult), StatusCodes.Status200OK)]
