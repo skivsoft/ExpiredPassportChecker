@@ -1,5 +1,5 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System;
+using System.IO;
 using Google.Protobuf;
 
 namespace FileFormat.PassportData
@@ -20,14 +20,22 @@ namespace FileFormat.PassportData
                 CsvHeader = storage.Header ?? string.Empty,
             };
 
-            var numbers = storage.Numbers.Dictionary
-                .Select(x => new NumbersMap
+            foreach (var (key, value) in storage.Numbers.Dictionary)
+            {
+                // Max length optimization
+                var length = value.Length;
+                while (length > 0 && value[length - 1] == 0)
                 {
-                    SevenDigitsKey = x.Key,
-                    ThreeDigitsBitsValue = ByteString.CopyFrom(x.Value),
-                })
-                .ToList();
-            message.NumbersOnlyMap.AddRange(numbers);
+                    length--;
+                }
+
+                message.NumbersOnlyMap.Add(new NumbersMap
+                {
+                    SevenDigitsKey = key,
+                    ThreeDigitsBitsValue = ByteString.CopyFrom(value.AsSpan()[..length]),
+                });
+            }
+
             message.OtherLines.AddRange(storage.Strings);
 
             var content = message.ToByteArray();

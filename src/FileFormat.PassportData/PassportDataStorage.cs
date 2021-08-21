@@ -7,6 +7,7 @@ namespace FileFormat.PassportData
     public class PassportDataStorage
     {
         public const int PART2_NUM_VALUES = 1000;
+        public const int PART2_NUM_BYTES = (PART2_NUM_VALUES >> 3) + (PART2_NUM_VALUES % 8 == 0 ? 0 : 1);
         private const int PART1_LENGTH = 7;
         private const int PART2_LENGTH = 3;
 
