@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using ExpiredPassportChecker.Helpers;
 using FileFormat.PassportData;
 using MediatR;
@@ -16,8 +17,8 @@ namespace ExpiredPassportChecker.Application.Queries.CheckPassport
 
         protected override CheckPassportResult Handle(CheckPassportQuery query)
         {
-            var combined = $"{query.PassportSeries}{query.PassportNumber}";
-            var result = new CheckPassportResult()
+            var combined = $"{query.PassportSeries.Trim()},{query.PassportNumber.Trim()}";
+            var result = new CheckPassportResult
             {
                 FoundInExpiredPassports = _container.Value.Contains(combined),
             };
